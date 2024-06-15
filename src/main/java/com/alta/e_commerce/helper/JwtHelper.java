@@ -19,18 +19,22 @@ public class JwtHelper {
     private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private static final int MINUTES = 60;
 
-    public static String generateToken(String email) {
+    public static String generateToken(String userId) {
         var now = Instant.now();
         return Jwts.builder()
-                .subject(email)
+                .claim("userId", userId)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(MINUTES, ChronoUnit.MINUTES)))
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .signWith(SECRET_KEY)
                 .compact();
     }
 
     public static String extractUsername(String token) {
         return getTokenBody(token).getSubject();
+    }
+
+    public static String extractUserId(String token) {
+        return getTokenBody(token).get("userId", String.class);
     }
 
     public static Boolean validateToken(String token, UserDetails userDetails) {

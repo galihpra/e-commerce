@@ -42,7 +42,8 @@ public class UserController {
     public ResponseEntity<JwtAuthenticationResponse> login(@Valid @RequestBody LoginRequest request) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-            String token = JwtHelper.generateToken(request.getEmail());
+            String userId = userService.getUserIdByEmail(request.getEmail());
+            String token = JwtHelper.generateToken(userId);
             return ResponseEntity.ok(new JwtAuthenticationResponse(request.getEmail(), token));
         } catch (UsernameNotFoundException e) {
             // Handle invalid username case (e.g., return 401 with a message)
