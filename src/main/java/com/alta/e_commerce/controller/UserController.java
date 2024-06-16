@@ -3,6 +3,9 @@ package com.alta.e_commerce.controller;
 import com.alta.e_commerce.service.UserService;
 import com.alta.e_commerce.model.*;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
@@ -30,13 +33,24 @@ public class UserController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public WebResponse<UserResponse> update(
-            @RequestPart("file") MultipartFile file,
-            @RequestPart("user") @Valid UpdateUserRequest request,
+            @RequestParam(value = "file", required = false) MultipartFile file,
+            @RequestParam(value = "name", required = false) @Size(max = 100) String name,
+            @RequestParam(value = "email", required = false) @Size(max = 100) @Email String email,
+            @RequestParam(value = "password", required = false) @Size(max = 100) String password,
+            @RequestParam(value = "identifier", required = false) @Size(max = 30) String identifier,
+            @RequestParam(value = "phone", required = false) @Size(max = 20) String phone,
             @PathVariable("userId") String userId
-    ){
-        // ambil dari url param dan set ke var request
-        request.setId(userId);
-        request.setFile(file);
+    ) {
+        // Buat objek request dari parameter yang diterima
+        UpdateUserRequest request = UpdateUserRequest.builder()
+                .id(userId)
+                .name(name)
+                .email(email)
+                .password(password)
+                .identifier(identifier)
+                .phone(phone)
+                .file(file)
+                .build();
 
         UserResponse userResponse = userService.update(request);
         return WebResponse.<UserResponse>builder()

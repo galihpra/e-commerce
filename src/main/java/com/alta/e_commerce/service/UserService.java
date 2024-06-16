@@ -64,11 +64,22 @@ public class UserService {
         User user = userRepository.findById(request.getId())
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "user tidak ditemukan"));
 
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setName(request.getName());
-        user.setIdentifier(request.getIdentifier());
-        user.setPhone(request.getPhone());
+        // Perbarui field yang tidak null
+        if (request.getName() != null) {
+            user.setName(request.getName());
+        }
+        if (request.getEmail() != null) {
+            user.setEmail(request.getEmail());
+        }
+        if (request.getPassword() != null) {
+            user.setPassword(request.getPassword());
+        }
+        if (request.getIdentifier() != null) {
+            user.setIdentifier(request.getIdentifier());
+        }
+        if (request.getPhone() != null) {
+            user.setPhone(request.getPhone());
+        }
         if (request.getFile() != null && !request.getFile().isEmpty()) {
             String imageUrl = cloudinaryService.UploadFile(request.getFile(), "user_profile");
             if (imageUrl == null) {
