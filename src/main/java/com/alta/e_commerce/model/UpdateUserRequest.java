@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,6 +22,7 @@ public class UpdateUserRequest {
     @Size(max = 100)
     @Email
     private String email;
+
 
     @Size(max = 100)
     private String password;
@@ -36,5 +38,6 @@ public class UpdateUserRequest {
 
     private String image;
     private MultipartFile file;
+
 }
 

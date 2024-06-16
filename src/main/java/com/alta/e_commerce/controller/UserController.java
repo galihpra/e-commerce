@@ -1,5 +1,6 @@
 package com.alta.e_commerce.controller;
 
+
 import com.alta.e_commerce.service.UserService;
 import com.alta.e_commerce.model.*;
 import jakarta.validation.Valid;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+
 import java.util.List;
 
 @RestController
@@ -25,6 +27,7 @@ public class UserController {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
 
 
     @PutMapping(
@@ -52,6 +55,7 @@ public class UserController {
                 .file(file)
                 .build();
 
+
         UserResponse userResponse = userService.update(request);
         return WebResponse.<UserResponse>builder()
                 .message("success update data")
@@ -67,6 +71,7 @@ public class UserController {
             @PathVariable("userId") String userId
     ){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         userService.delete(userId);
         return WebResponse.<String>builder()
                 .message("success delete data")
