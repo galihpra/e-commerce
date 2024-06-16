@@ -3,6 +3,7 @@ package com.alta.e_commerce.service;
 import com.alta.e_commerce.entity.User;
 import com.alta.e_commerce.model.*;
 import com.alta.e_commerce.repository.UserRepository;
+import com.cloudinary.api.exceptions.BadRequest;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,6 +33,9 @@ public class UserService {
 
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private CloudinaryService cloudinaryService;
+
     public UserService(UserRepository repository, PasswordEncoder passwordEncoder) {
         this.userRepository = repository;
         this.passwordEncoder = passwordEncoder;
@@ -48,30 +52,10 @@ public class UserService {
                 .id(user.getId())
                 .email(user.getEmail())
                 .name(user.getName())
-                .username(user.getUsername())
+                .username(user.getIdentifier())
                 .phone(user.getPhone())
                 .image(user.getImage())
                 .build();
-    }
-
-    @Transactional
-    public void signup(UserRequest request){
-
-        validationService.validate(request);
-
-        // validation
-        if (request.getEmail().equals("admin@admin.com")){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "email tidak bisa dipakai");
-        }
-
-        User user = new User();
-        user.setId(UUID.randomUUID().toString());
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setName(request.getName());
-        user.setPhone(request.getPhone());
-        user.setUsername(request.getUsername());
-        userRepository.save(user);
     }
 
     @Transactional
@@ -81,8 +65,17 @@ public class UserService {
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "user tidak ditemukan"));
 
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setName(request.getName());
+        user.setIdentifier(request.getIdentifier());
+        user.setPhone(request.getPhone());
+        if (request.getFile() != null && !request.getFile().isEmpty()) {
+            String imageUrl = cloudinaryService.UploadFile(request.getFile(), "user_profile");
+            if (imageUrl == null) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Gagal mengunggah foto profil");
+            }
+            user.setImage(imageUrl);
+        }
 
         userRepository.save(user);
 

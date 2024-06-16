@@ -18,16 +18,19 @@ public class UserRequest {
     @Email
     private String email;
 
+    @NotBlank
     @Size(max = 30)
-    private String username;
+    private String identifier;
 
     @NotBlank
     @Size(max = 100)
     private String password;
 
+    @NotBlank
     @Size(max = 100)
     private String name;
 
+    @NotBlank
     @Size(max = 15)
     private String phone;
 }

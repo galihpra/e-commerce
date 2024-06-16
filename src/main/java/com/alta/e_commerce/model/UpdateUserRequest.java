@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @AllArgsConstructor
@@ -27,7 +28,19 @@ public class UpdateUserRequest {
     @Size(max = 100)
     private String password;
 
+    @NotBlank
     @Size(max = 100)
     private String name;
+
+    @NotBlank
+    @Size(max = 30)
+    private String identifier;
+
+    @NotBlank
+    @Size(max = 20)
+    private String phone;
+
+    private String image;
+    private MultipartFile file;
 }
 
