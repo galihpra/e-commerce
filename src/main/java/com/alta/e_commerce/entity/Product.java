@@ -3,7 +3,8 @@ package com.alta.e_commerce.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -30,5 +31,8 @@ public class Product {
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Image> images = new ArrayList<>();
 }
 

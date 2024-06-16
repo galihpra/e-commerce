@@ -7,6 +7,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -30,4 +33,5 @@ public class ProductRequest {
     @JsonProperty("user_id")
     private String userId;
 
+    private List<MultipartFile> imageUrls;
 }

@@ -1,18 +1,24 @@
 package com.alta.e_commerce.service;
 
+import com.alta.e_commerce.entity.Image;
 import com.alta.e_commerce.entity.Product;
 import com.alta.e_commerce.entity.User;
 import com.alta.e_commerce.model.ProductRequest;
 import com.alta.e_commerce.model.ProductResponse;
+import com.alta.e_commerce.repository.ImageRepository;
 import com.alta.e_commerce.repository.ProductRepository;
 import com.alta.e_commerce.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -24,10 +30,16 @@ public class ProductService {
     private UserRepository userRepository;
 
     @Autowired
+    private ImageRepository imageRepository;
+
+    @Autowired
     private JwtService jwtService;
 
     @Autowired
     private ValidationService validationService;
+
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     private String getUserIdFromToken(String token) {
         return jwtService.extractClaim(token, claims -> token);
@@ -38,13 +50,16 @@ public class ProductService {
      * @param product
      * @return
      */
-    private ProductResponse toProductResponse(Product product){
+    private ProductResponse toProductResponse(Product product, List<Image> images){
+        List<String> imageUrls = images.stream().map(Image::getUrl).collect(Collectors.toList());
+
         return ProductResponse.builder()
                 .id(product.getId())
                 .name(product.getName())
                 .description(product.getDescription())
                 .price(product.getPrice())
                 .stock(product.getStock())
+                .imageUrls(imageUrls)
                 .build();
     }
 
@@ -61,9 +76,21 @@ public class ProductService {
         product.setStock(request.getStock());
         product.setUser(user);
 
-        Product savedProduct = productRepository.save(product);
+        productRepository.save(product);
 
-        return toProductResponse(savedProduct);
+        // Save images
+        List<Image> images = new ArrayList<>();
+        for (MultipartFile imageFile : request.getImageUrls()) {
+            String imageUrl = cloudinaryService.UploadFile(imageFile,"product_image");
+            Image image = new Image();
+            image.setId(UUID.randomUUID().toString());
+            image.setUrl(imageUrl);
+            image.setProduct(product);
+            images.add(image);
+        }
+        imageRepository.saveAll(images);
+
+        return toProductResponse(product, images);
     }
 
 }
