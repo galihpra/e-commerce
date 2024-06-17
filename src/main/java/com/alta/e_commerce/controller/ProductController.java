@@ -77,4 +77,38 @@ public class ProductController {
                 .build();
     }
 
+    @PutMapping(
+            path = "/{productId}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public WebResponse<ProductResponse> update(
+            @PathVariable("productId") String productId,
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "price", required = false) Double price,
+            @RequestParam(value = "stock", required = false) Integer stock,
+            @RequestParam(value = "images", required = false) List<MultipartFile> images,
+            @RequestHeader("Authorization") String authorizationHeader) {
+
+        String token = authorizationHeader.substring(7);  // Extract token from "Bearer " prefix
+
+        String userId = jwtService.extractClaim(token, claims -> claims.get("user_id", String.class));
+
+        UpdateProductRequest request = UpdateProductRequest.builder()
+                .id(productId)
+                .userId(userId)
+                .name(name)
+                .description(description)
+                .price(price)
+                .stock(stock)
+                .imageUrls(images)
+                .build();
+
+        ProductResponse productResponse = productService.update(request, productId, userId);
+        return WebResponse.<ProductResponse>builder()
+                .message("Product updated successfully")
+                .data(productResponse)
+                .build();
+    }
+
 }

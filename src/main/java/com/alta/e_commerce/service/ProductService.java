@@ -5,6 +5,7 @@ import com.alta.e_commerce.entity.Product;
 import com.alta.e_commerce.entity.User;
 import com.alta.e_commerce.model.ProductRequest;
 import com.alta.e_commerce.model.ProductResponse;
+import com.alta.e_commerce.model.UpdateProductRequest;
 import com.alta.e_commerce.repository.ImageRepository;
 import com.alta.e_commerce.repository.ProductRepository;
 import com.alta.e_commerce.repository.UserRepository;
@@ -99,6 +100,46 @@ public class ProductService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "produk tidak ditemukan"));
 
         productRepository.delete(product);
+    }
+
+    @Transactional
+    public ProductResponse update(UpdateProductRequest request, String productId, String userId){
+        Product product = productRepository.findByIdAndUserId(productId, userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "produk tidak ditemukan"));
+
+        if (request.getName() != null) {
+            product.setName(request.getName());
+        }
+        if (request.getPrice() != 0) {
+            product.setPrice(request.getPrice());
+        }
+        if (request.getDescription() != null) {
+            product.setDescription(request.getDescription());
+        }
+        if (request.getStock() != null) {
+            product.setStock(request.getStock());
+        }
+
+        productRepository.save(product);
+
+        List<Image> images = new ArrayList<>();
+
+        if (request.getImageUrls() != null){
+            for (MultipartFile imageFile : request.getImageUrls()) {
+                String imageUrl = cloudinaryService.UploadFile(imageFile,"product_image");
+                if (imageUrl == null) {
+                    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Gagal mengunggah foto profil");
+                }
+                Image image = new Image();
+                image.setId(UUID.randomUUID().toString());
+                image.setUrl(imageUrl);
+                image.setProduct(product);
+                images.add(image);
+            }
+            imageRepository.saveAll(images);
+        }
+
+        return toProductResponse(product, images);
     }
 
 }
