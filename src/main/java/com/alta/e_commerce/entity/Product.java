@@ -36,5 +36,8 @@ public class Product {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images = new ArrayList<>();
+
+    @OneToOne(mappedBy = "product")
+    private Cart cart;
 }
 
