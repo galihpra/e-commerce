@@ -23,6 +23,8 @@ public class ProductResponse {
 
     private Integer stock;
 
+    private String thumbnail;
+
     private List<String> imageUrls;
 
     private String userId;

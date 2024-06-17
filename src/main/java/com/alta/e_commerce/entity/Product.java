@@ -28,6 +28,8 @@ public class Product {
 
     private Integer stock;
 
+    private String thumbnail;
+
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;

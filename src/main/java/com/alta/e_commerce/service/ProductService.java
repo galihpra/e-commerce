@@ -65,6 +65,7 @@ public class ProductService {
                 .description(product.getDescription())
                 .price(product.getPrice())
                 .stock(product.getStock())
+                .thumbnail(product.getThumbnail())
                 .imageUrls(imageUrls)
                 .userId(product.getUser().getId())
                 .build();
@@ -83,8 +84,6 @@ public class ProductService {
         product.setStock(request.getStock());
         product.setUser(user);
 
-        productRepository.save(product);
-
         // Save images
         List<Image> images = new ArrayList<>();
         for (MultipartFile imageFile : request.getImageUrls()) {
@@ -94,7 +93,13 @@ public class ProductService {
             image.setUrl(imageUrl);
             image.setProduct(product);
             images.add(image);
+
+            if (product.getThumbnail() == null){
+                product.setThumbnail(imageUrl);
+            }
         }
+
+        productRepository.save(product);
         imageRepository.saveAll(images);
 
         return toProductResponse(product, images);
