@@ -184,4 +184,15 @@ public class ProductService {
         return new PageImpl<>(productResponses, pageable, products.getTotalElements());
     }
 
+
+    @Transactional(readOnly = true)
+    public ProductResponse getById(String productId){
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "produk tidak ditemukan"));
+
+        List<Image> image = imageRepository.findByProductId(productId);
+
+        return toProductResponse(product,image);
+    }
 }

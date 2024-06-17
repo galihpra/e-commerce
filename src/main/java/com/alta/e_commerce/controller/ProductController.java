@@ -143,4 +143,17 @@ public class ProductController {
                 .build();
     }
 
+    @GetMapping(
+            path = "/{productId}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public WebResponse<ProductResponse> getById(
+            @PathVariable("productId") String productId
+    ){
+        ProductResponse productResponse = productService.getById(productId);
+        return WebResponse.<ProductResponse>builder()
+                .message("success get data")
+                .data(productResponse)
+                .build();
+    }
 }
