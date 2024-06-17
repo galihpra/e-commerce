@@ -1,29 +1,22 @@
 package com.alta.e_commerce.model;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-
-public class ProductResponse {
-    private String id;
+public class SearchProductRequest {
 
     private String name;
 
-    private String description;
+    @NotNull
+    private Integer page;
 
-    private double price;
-
-    private Integer stock;
-
-    private List<String> imageUrls;
-
-    private String userId;
+    @NotNull
+    private Integer limit;
 }

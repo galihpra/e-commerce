@@ -3,13 +3,17 @@ package com.alta.e_commerce.service;
 import com.alta.e_commerce.entity.Image;
 import com.alta.e_commerce.entity.Product;
 import com.alta.e_commerce.entity.User;
-import com.alta.e_commerce.model.ProductRequest;
-import com.alta.e_commerce.model.ProductResponse;
-import com.alta.e_commerce.model.UpdateProductRequest;
+import com.alta.e_commerce.model.*;
 import com.alta.e_commerce.repository.ImageRepository;
 import com.alta.e_commerce.repository.ProductRepository;
 import com.alta.e_commerce.repository.UserRepository;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -61,6 +66,7 @@ public class ProductService {
                 .price(product.getPrice())
                 .stock(product.getStock())
                 .imageUrls(imageUrls)
+                .userId(product.getUser().getId())
                 .build();
     }
 
@@ -140,6 +146,37 @@ public class ProductService {
         }
 
         return toProductResponse(product, images);
+    }
+    /**
+     * @param request
+     * @return
+     */
+    @Transactional
+    public Page<ProductResponse> getAllOrSearch(SearchProductRequest request){
+        Specification<Product> specification = (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+           if (Objects.nonNull(request.getName())){
+                predicates.add(
+                        criteriaBuilder.like(root.get("name"), "%"+request.getName()+"%")
+                );
+            }
+            return query.where(predicates.toArray(new Predicate[]{})).getRestriction();
+        };
+
+        Pageable pageable = PageRequest.of(request.getPage(), request.getLimit());
+        Page<Product> products = productRepository.findAll(specification,pageable);
+        List<ProductResponse> productResponses = products.getContent().stream()
+                .map(product -> ProductResponse.builder()
+                        .id(product.getId())
+                        .name(product.getName())
+                        .price(product.getPrice())
+                        .stock(product.getStock())
+                        .userId(product.getUser().getId())
+                        .build())
+                .toList();
+
+        return new PageImpl<>(productResponses, pageable, products.getTotalElements());
     }
 
 }

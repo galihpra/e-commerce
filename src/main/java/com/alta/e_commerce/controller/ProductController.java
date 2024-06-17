@@ -9,6 +9,7 @@ import io.jsonwebtoken.Claims;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,11 +19,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.List;
 
 @RestController
 @RequestMapping("/products")
 public class ProductController {
+
+    private static final Logger log = LoggerFactory.getLogger(ProductController.class);
 
     @Autowired
     private ProductService productService;
@@ -108,6 +113,33 @@ public class ProductController {
         return WebResponse.<ProductResponse>builder()
                 .message("Product updated successfully")
                 .data(productResponse)
+                .build();
+    }
+
+
+    @GetMapping(
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public WebResponse<List<ProductResponse>> getAllorSearch(
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
+            @RequestParam(value = "limit", required = false, defaultValue = "10") Integer limit
+    ){
+        SearchProductRequest request = SearchProductRequest.builder()
+                .page(page)
+                .limit(limit)
+                .name(name)
+                .build();
+
+        Page<ProductResponse> productResponses = productService.getAllOrSearch(request);
+        return WebResponse.<List<ProductResponse>>builder()
+                .data(productResponses.getContent())
+                .message("success get data")
+                .pagination(PaginationResponse.builder()
+                        .currentPage(productResponses.getNumber())
+                        .totalPage(productResponses.getTotalPages())
+                        .limit(productResponses.getSize())
+                        .build())
                 .build();
     }
 
