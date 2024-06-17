@@ -93,4 +93,12 @@ public class ProductService {
         return toProductResponse(product, images);
     }
 
+    @Transactional
+    public void delete(String productId, String userId) {
+        Product product = productRepository.findByIdAndUserId(productId, userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "produk tidak ditemukan"));
+
+        productRepository.delete(product);
+    }
+
 }

@@ -12,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -57,5 +59,22 @@ public class ProductController {
                 .build();
     }
 
+    @DeleteMapping(
+            path = "/{productId}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public WebResponse<String> delete(
+            @PathVariable("productId") String productId,
+            @RequestHeader("Authorization") String authorizationHeader
+    ){
+        String token = authorizationHeader.substring(7);  // Extract token from "Bearer " prefix
+
+        String userId = jwtService.extractClaim(token, claims -> claims.get("user_id", String.class));
+
+        productService.delete(productId, userId);
+        return WebResponse.<String>builder()
+                .message("success delete data")
+                .build();
+    }
 
 }
