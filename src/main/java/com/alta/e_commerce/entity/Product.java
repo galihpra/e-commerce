@@ -39,5 +39,17 @@ public class Product {
 
     @OneToOne(mappedBy = "product")
     private Cart cart;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TransactionDetail> transactionDetails = new ArrayList<>();
+
+    public void reduceStock(int quantity) {
+        if (this.stock >= quantity) {
+            this.stock -= quantity;
+        } else {
+            throw new IllegalArgumentException("Not enough stock for product: " + this.id);
+        }
+    }
+
 }
 
