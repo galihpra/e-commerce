@@ -46,6 +46,9 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user")
     private List<Cart> carts;
 
+    @OneToMany(mappedBy = "user")
+    private List<Transaction> transactions;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();

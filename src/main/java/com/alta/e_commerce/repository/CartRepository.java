@@ -18,6 +18,8 @@ import java.util.Optional;
 public interface CartRepository extends JpaRepository<Cart, String>, JpaSpecificationExecutor<Cart> {
     Page<Cart> findByUserId(String userId, Pageable pageable);
 
+    List<Cart> findByUser_Id(String userId);
+
     @Query("SELECT c FROM Cart c WHERE c.id = :cartId AND c.user.id = :userId")
     Optional<Cart> findByIdAndUserId(@Param("cartId") String cartId, @Param("userId") String userId);
 }
