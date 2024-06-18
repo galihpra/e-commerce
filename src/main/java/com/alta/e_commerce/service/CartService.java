@@ -1,6 +1,7 @@
 package com.alta.e_commerce.service;
 
 import com.alta.e_commerce.entity.Cart;
+import com.alta.e_commerce.entity.Image;
 import com.alta.e_commerce.entity.Product;
 import com.alta.e_commerce.entity.User;
 import com.alta.e_commerce.model.*;
@@ -88,6 +89,23 @@ public class CartService {
         }
 
         cartRepository.save(cart);
+    }
+
+    @Transactional(readOnly = true)
+    public CartResponse getById(String cartId, String userId){
+
+        Cart cart= cartRepository.findByIdAndUserId(cartId,userId)
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "keranjang tidak ditemukan"));
+
+        Product product = cart.getProduct();
+
+        return CartResponse.builder()
+                .id(cart.getId())
+                .productId(product.getId())
+                .name(product.getName())
+                .price(product.getPrice())
+                .qty(cart.getQty())
+                .build();
     }
 
     /**
