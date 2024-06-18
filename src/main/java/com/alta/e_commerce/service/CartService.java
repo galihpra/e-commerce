@@ -4,9 +4,7 @@ import com.alta.e_commerce.entity.Cart;
 import com.alta.e_commerce.entity.Image;
 import com.alta.e_commerce.entity.Product;
 import com.alta.e_commerce.entity.User;
-import com.alta.e_commerce.model.CartRequest;
-import com.alta.e_commerce.model.ProductRequest;
-import com.alta.e_commerce.model.ProductResponse;
+import com.alta.e_commerce.model.*;
 import com.alta.e_commerce.repository.CartRepository;
 import com.alta.e_commerce.repository.ProductRepository;
 import com.alta.e_commerce.repository.UserRepository;
@@ -66,6 +64,18 @@ public class CartService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "cart tidak ditemukan"));
 
         cartRepository.delete(cart);
+    }
+
+    @Transactional
+    public void update(Integer qty, String productId, String userId){
+        Cart cart = cartRepository.findByIdAndUserId(productId, userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "keranjang tidak ditemukan"));
+
+        if (qty != null) {
+            cart.setQty(qty);
+        }
+
+        cartRepository.save(cart);
     }
 
 }
