@@ -4,18 +4,19 @@ import com.alta.e_commerce.model.*;
 import com.alta.e_commerce.service.CartService;
 import com.alta.e_commerce.service.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/carts")
 public class CartController {
-    private static final Logger logger = LoggerFactory.getLogger(CartController.class);
 
     @Autowired
     private CartService cartService;
@@ -72,10 +73,40 @@ public class CartController {
 
         String userId = jwtService.extractClaim(token, claims -> claims.get("user_id", String.class));
 
-        logger.info("Received request to update cart with qty: {}, productId: {}, userId: {}", cartUpdateRequest.getQty(), cartId, userId);
         cartService.update(cartUpdateRequest.getQty(), cartId, userId);
         return WebResponse.<String>builder()
                 .message("Cart updated successfully")
+                .build();
+    }
+
+    @GetMapping(
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public WebResponse<List<CartResponse>> getAll(
+            @RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
+            @RequestParam(value = "limit", required = false, defaultValue = "5") Integer limit,
+            @RequestHeader("Authorization") String authorizationHeader
+    ){
+
+        SearchCartRequest request = SearchCartRequest.builder()
+                .page(page)
+                .limit(limit)
+                .build();
+
+        String token = authorizationHeader.substring(7);  // Extract token from "Bearer " prefix
+
+        String userId = jwtService.extractClaim(token, claims -> claims.get("user_id", String.class));
+
+        Page<CartResponse> cartResponses = cartService.getAll(userId, request);
+
+        return WebResponse.<List<CartResponse>>builder()
+                .data(cartResponses.getContent())
+                .message("success get data")
+                .pagination(PaginationResponse.builder()
+                        .currentPage(cartResponses.getNumber())
+                        .totalPage(cartResponses.getTotalPages())
+                        .limit(cartResponses.getSize())
+                        .build())
                 .build();
     }
 }
