@@ -80,6 +80,26 @@ public class CartController {
     }
 
     @GetMapping(
+            path = "/{cartId}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public WebResponse<CartResponse> getById(
+            @PathVariable("cartId") String cartId,
+            @RequestHeader("Authorization") String authorizationHeader
+    ){
+
+        String token = authorizationHeader.substring(7);  // Extract token from "Bearer " prefix
+
+        String userId = jwtService.extractClaim(token, claims -> claims.get("user_id", String.class));
+
+        CartResponse cartResponse = cartService.getById(cartId, userId);
+        return WebResponse.<CartResponse>builder()
+                .message("success get data")
+                .data(cartResponse)
+                .build();
+    }
+
+    @GetMapping(
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public WebResponse<List<CartResponse>> getAll(
