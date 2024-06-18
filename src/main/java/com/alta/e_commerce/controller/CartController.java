@@ -37,4 +37,22 @@ public class CartController {
                 .message("Cart created successfully")
                 .build();
     }
+
+    @DeleteMapping(
+            path = "/{cartId}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public WebResponse<String> delete(
+            @PathVariable("cartId") String cartId,
+            @RequestHeader("Authorization") String authorizationHeader
+    ){
+        String token = authorizationHeader.substring(7);  // Extract token from "Bearer " prefix
+
+        String userId = jwtService.extractClaim(token, claims -> claims.get("user_id", String.class));
+
+        cartService.delete(cartId, userId);
+        return WebResponse.<String>builder()
+                .message("success delete data")
+                .build();
+    }
 }

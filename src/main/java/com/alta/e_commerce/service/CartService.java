@@ -60,4 +60,12 @@ public class CartService {
         cartRepository.save(cart);
     }
 
+    @Transactional
+    public void delete(String cartId, String userId) {
+        Cart cart = cartRepository.findByIdAndUserId(cartId, userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "cart tidak ditemukan"));
+
+        cartRepository.delete(cart);
+    }
+
 }
