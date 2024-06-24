@@ -4,6 +4,7 @@ import com.alta.e_commerce.entity.User;
 import com.alta.e_commerce.model.LoginRequest;
 import com.alta.e_commerce.model.UserRequest;
 import com.alta.e_commerce.model.LoginResponse;
+import com.alta.e_commerce.model.WebResponse;
 import com.alta.e_commerce.service.AuthenticationService;
 import com.alta.e_commerce.service.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,10 +32,12 @@ public class AuthenticationController {
     @PostMapping(path = "/signup",
                 consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<User> register(@RequestBody UserRequest request) {
-        User registeredUser = authenticationService.signup(request);
+    public WebResponse<String> register(@RequestBody UserRequest request) {
+        authenticationService.signup(request);
 
-        return ResponseEntity.ok(registeredUser);
+        return WebResponse.<String>builder()
+                .message("success add data")
+                .build();
     }
 
     @PostMapping("/login")

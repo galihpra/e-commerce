@@ -13,24 +13,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class UserRequest {
-    @NotBlank
     @Size(max = 100)
     @Email
     private String email;
 
-    @NotBlank
     @Size(max = 30)
     private String identifier;
 
-    @NotBlank
     @Size(max = 100)
     private String password;
 
-    @NotBlank
     @Size(max = 100)
     private String name;
 
-    @NotBlank
     @Size(max = 15)
     private String phone;
 }

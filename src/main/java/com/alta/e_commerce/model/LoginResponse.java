@@ -1,10 +1,8 @@
 package com.alta.e_commerce.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+@Getter
 @Data
 @NoArgsConstructor
 @Builder
@@ -14,17 +12,9 @@ public class LoginResponse {
 
     private long expiresIn;
 
-    public String getToken() {
-        return token;
-    }
-
     public LoginResponse setToken(String token) {
         this.token = token;
         return this;
-    }
-
-    public long getExpiresIn() {
-        return expiresIn;
     }
 
     public LoginResponse setExpiresIn(long expiresIn) {
